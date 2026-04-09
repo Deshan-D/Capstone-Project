@@ -55,6 +55,34 @@ export default function HomePage() {
           </div>
         </nav>
 
+        <div className="grow flex items-center p-6 md:p-12 lg:p-20">
+          <div className="max-w-5xl mx-auto">
+            <h1 className="text-6xl md:text-8xl font-extrabold tracking-tighter text-white mb-6 drop-shadow-lg">
+              <span className="text-lime-400">T</span>raffi
+              <span className="text-lime-400">X</span>
+            </h1>
+            <p className="max-w-2xl text-lg md:text-xl text-neutral-300 leading-relaxed font-light drop-shadow-md">
+              An AI-powered traffic monitoring system designed to transform how cities manage intersections.
+              Using real-time video analytics, TraffiX automatically detects traffic and pedestrian
+              violations—like red-light jumping, illegal turns, and crosswalk blocking—and instantly
+              alerts authorities.
+            </p>
+          </div>
+        </div>
+
+        
+        <footer className="mt-auto py-6 border-t border-neutral-800/50 bg-neutral-900/60 backdrop-blur-sm relative z-10">
+          <div className="max-w-5xl mx-auto text-center flex flex-col items-center">
+            <Link href="/ContactUs">
+              <h2 className="text-2xl font-bold text-lime-400 hover:text-lime-300 transition-colors cursor-pointer mb-2 inline-block">
+                Contact Us
+              </h2>
+            </Link>
+            <p className="text-xs text-neutral-500 font-light tracking-wide">
+              All Rights Reserved
+            </p>
+          </div>
+        </footer>
       </div>
     </main>
   );
