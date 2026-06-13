@@ -2,8 +2,6 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 export default function HomePage() {
- const navLinks = ['Dashboard', 'LiveCamera', 'Analytics', 'Settings', 'Login'];;
-
   return (
     <main className="relative min-h-screen bg-neutral-950 font-sans text-neutral-100 antialiased">
       

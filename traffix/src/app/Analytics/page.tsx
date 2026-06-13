@@ -225,7 +225,32 @@ export default function Analytics() {
           </div>
         </div>
 
-     
+        {/* AI Insights Section */}
+        <div className="mb-6">
+          <h2 className="font-bold text-white mb-4">AI Predictive Insights</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {insights.map((insight) => (
+              <div key={insight.id} className={`bg-[#161616] border border-neutral-800 hover:${insight.borderColor} rounded-xl p-5 cursor-pointer ${insight.bgHover} transition-colors flex flex-col gap-3`}>
+                <div className="flex items-center gap-3">
+                  <div className={`p-2 rounded-lg bg-[#111111] border border-neutral-800 ${insight.textColor}`}>
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      {insight.icon}
+                    </svg>
+                  </div>
+                  <h3 className="text-sm font-bold text-white">{insight.title}</h3>
+                </div>
+                <p className="text-xs text-neutral-400 leading-relaxed flex-1">
+                  {insight.desc}
+                </p>
+                <div className="mt-2 text-right">
+                  <span className={`text-[10px] font-bold uppercase tracking-wider ${insight.textColor}`}>
+                    View Details &rarr;
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
 
       </main>
     </div>

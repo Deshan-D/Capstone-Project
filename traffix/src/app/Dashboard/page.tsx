@@ -84,6 +84,29 @@ export default function Dashboard() {
           </div>
         </header>
 
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          {[
+            { title: 'Total Violations', value: '1,240', change: '+12%', isPositive: false, icon: '📋' },
+            { title: 'Pending Review', value: '342', change: '-5%', isPositive: true, icon: '⏳' },
+            { title: 'Processed Today', value: '89', change: '+24%', isPositive: true, icon: '✅' },
+            { title: 'Active Cameras', value: '12/15', change: '80%', isPositive: true, icon: '📹' },
+          ].map((stat, i) => (
+            <div key={i} className="bg-[#161616] border border-neutral-800 rounded-xl p-6 shadow-lg flex flex-col justify-between hover:border-lime-500/30 transition-colors">
+              <div className="flex justify-between items-start mb-4">
+                <h3 className="text-neutral-400 text-sm font-medium">{stat.title}</h3>
+                <span className="text-xl">{stat.icon}</span>
+              </div>
+              <div className="flex items-end justify-between">
+                <span className="text-3xl font-bold text-white">{stat.value}</span>
+                <span className={`text-sm font-medium ${stat.isPositive ? 'text-emerald-400' : 'text-red-400'}`}>
+                  {stat.change}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+
         {/* Filters & Table Container */}
         <div className="border border-lime-500/30 rounded-xl bg-[#161616] flex-1 flex flex-col overflow-hidden shadow-2xl">
           
