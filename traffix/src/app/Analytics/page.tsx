@@ -1,7 +1,32 @@
+"use client";
+
 import Image from 'next/image';
 import Link from 'next/link';
+import { useState, useRef } from 'react';
 
 export default function Analytics() {
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleRunAnalysis = async () => {
+    if (!selectedFile) return;
+    setIsProcessing(true);
+    try {
+      const formData = new FormData();
+      formData.append('video', selectedFile);
+      await fetch('http://localhost:8000/api/analyze-video', {
+        method: 'POST',
+        body: formData,
+      });
+    } catch (error) {
+      console.error("Error analyzing video:", error);
+    } finally {
+      setIsProcessing(false);
+      setSelectedFile(null);
+    }
+  };
+
   // Mock data for AI Insights
   const insights = [
     {
@@ -103,6 +128,35 @@ export default function Analytics() {
             </button>
           </div>
         </header>
+
+        {/* File Utility Zone */}
+        <div className="bg-[#161616] border border-neutral-800 p-2 rounded-lg mb-6 flex items-center gap-4">
+          <input 
+            type="file" 
+            accept="video/*" 
+            ref={fileInputRef} 
+            className="hidden" 
+            onChange={(e) => setSelectedFile(e.target.files?.[0] || null)} 
+          />
+          <button 
+            onClick={() => fileInputRef.current?.click()}
+            className="bg-neutral-800 hover:bg-neutral-700 text-neutral-300 px-4 py-2 rounded text-sm transition-colors font-medium"
+          >
+            {selectedFile ? "🔄 Change Video" : "📁 Choose Video File"}
+          </button>
+          <span className="text-sm text-neutral-400 truncate max-w-md">
+            {selectedFile ? selectedFile.name : "No file selected (MP4, MOV)"}
+          </span>
+          {selectedFile && (
+            <button 
+              onClick={handleRunAnalysis}
+              disabled={isProcessing}
+              className={`ml-auto px-6 py-2 rounded text-sm font-bold text-white transition-all ${isProcessing ? 'bg-orange-500/50 cursor-not-allowed' : 'bg-orange-500 hover:bg-orange-400 animate-pulse'}`}
+            >
+              {isProcessing ? "Processing..." : "🚀 Run Analysis"}
+            </button>
+          )}
+        </div>
 
         {/* KPI Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
