@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState, useRef } from 'react';
+import { jsPDF } from "jspdf";
 
 export default function Analytics() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -10,7 +11,7 @@ export default function Analytics() {
   
   // Dynamic Dashboard State
   const [analysisData, setAnalysisData] = useState<any>(null);
-  const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const [processedVideoUrl, setProcessedVideoUrl] = useState<string | null>(null);
 
   // Fallback for detected plates before analysis
   const fallbackPlates = [
@@ -36,15 +37,62 @@ export default function Analytics() {
       const data = await res.json();
       setAnalysisData(data);
       if (data.processedVideoUrl) {
-        setVideoUrl(data.processedVideoUrl);
+        setProcessedVideoUrl('http://127.0.0.1:8000' + data.processedVideoUrl);
       }
       
     } catch (error) {
       console.error("Error analyzing video:", error);
     } finally {
       setIsProcessing(false);
-      setSelectedFile(null);
     }
+  };
+
+  const handleExportPDF = () => {
+    const doc = new jsPDF();
+    
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(22);
+    doc.text("Agentic AI Comprehensive Report", 20, 20);
+    
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(150);
+    doc.text(`Generated: ${new Date().toLocaleString()}`, 20, 30);
+    
+    doc.setTextColor(0);
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "bold");
+    doc.text("Urban Traffic Summary", 20, 45);
+    
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "normal");
+    const summaryText = analysisData ? analysisData.agentic_report : 'Waiting for system analysis...';
+    const splitSummary = doc.splitTextToSize(summaryText, 170);
+    doc.text(splitSummary, 20, 55);
+    
+    let yPos = 55 + (splitSummary.length * 6) + 10;
+    
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "bold");
+    doc.text("Key Recommendations", 20, yPos);
+    
+    yPos += 10;
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "normal");
+    
+    const recommendations = [
+      "Dynamic Routing: Divert commercial logistics via the Northern Bypass between 16:00 and 18:00.",
+      "Enforcement Focus: Deploy localized traffic enforcement to Main St. during inclement weather.",
+      "Camera Calibration: Physical nodes CAM-004-P and CAM-009-P report suboptimal confidence scores."
+    ];
+    
+    recommendations.forEach((rec) => {
+      const splitRec = doc.splitTextToSize(`• ${rec}`, 160);
+      doc.text(splitRec, 25, yPos);
+      yPos += (splitRec.length * 6) + 4;
+    });
+    
+    doc.save("Agentic_AI_Report.pdf");
   };
 
   // Mock data for AI Insights
@@ -186,7 +234,8 @@ export default function Analytics() {
               {/* Video Preview Player */}
               <div className="w-full xl:w-1/2 aspect-video bg-black rounded-lg overflow-hidden border border-neutral-800 shadow-inner">
                 <video 
-                  src={videoUrl ? videoUrl : URL.createObjectURL(selectedFile)} 
+                  key={processedVideoUrl || 'raw-video'}
+                  src={processedVideoUrl ? processedVideoUrl : URL.createObjectURL(selectedFile)} 
                   controls 
                   className="w-full h-full object-contain"
                 />
@@ -342,30 +391,30 @@ export default function Analytics() {
             <div>
               <div className="flex justify-between text-xs font-medium mb-2">
                 <span className="text-neutral-400">Passenger Cars</span>
-                <span className="text-white font-bold">{analysisData ? analysisData.total_vehicles.passenger_cars.toLocaleString() : '45,200'}</span>
+                <span className="text-white font-bold">{analysisData ? analysisData.total_vehicles.passenger_cars.toLocaleString() : 0}</span>
               </div>
               <div className="h-3 w-full bg-[#111111] rounded-full overflow-hidden border border-neutral-800">
-                <div className="h-full bg-lime-300 w-[85%]"></div>
+                <div className="h-full bg-lime-300 transition-all duration-1000 ease-out" style={{ width: analysisData ? `${(analysisData.total_vehicles.passenger_cars / 50000) * 100}%` : '0%' }}></div>
               </div>
             </div>
 
             <div>
               <div className="flex justify-between text-xs font-medium mb-2">
                 <span className="text-neutral-400">Trucks & Vans</span>
-                <span className="text-white font-bold">{analysisData ? analysisData.total_vehicles.trucks_vans.toLocaleString() : '12,850'}</span>
+                <span className="text-white font-bold">{analysisData ? analysisData.total_vehicles.trucks_vans.toLocaleString() : 0}</span>
               </div>
               <div className="h-3 w-full bg-[#111111] rounded-full overflow-hidden border border-neutral-800">
-                <div className="h-full bg-lime-400 w-[40%]"></div>
+                <div className="h-full bg-lime-400 transition-all duration-1000 ease-out" style={{ width: analysisData ? `${(analysisData.total_vehicles.trucks_vans / 20000) * 100}%` : '0%' }}></div>
               </div>
             </div>
 
             <div>
               <div className="flex justify-between text-xs font-medium mb-2">
                 <span className="text-neutral-400">Motorbikes</span>
-                <span className="text-white font-bold">{analysisData ? analysisData.total_vehicles.motorbikes.toLocaleString() : '8,400'}</span>
+                <span className="text-white font-bold">{analysisData ? analysisData.total_vehicles.motorbikes.toLocaleString() : 0}</span>
               </div>
               <div className="h-3 w-full bg-[#111111] rounded-full overflow-hidden border border-neutral-800">
-                <div className="h-full bg-lime-500 w-[25%]"></div>
+                <div className="h-full bg-lime-500 transition-all duration-1000 ease-out" style={{ width: analysisData ? `${(analysisData.total_vehicles.motorbikes / 15000) * 100}%` : '0%' }}></div>
               </div>
             </div>
           </div>
@@ -427,7 +476,10 @@ export default function Analytics() {
             </div>
             
             <div className="flex justify-end pt-5 border-t border-neutral-800">
-              <button className="bg-lime-400 hover:bg-lime-500 text-black font-bold py-2.5 px-6 rounded text-sm transition-colors flex items-center gap-2">
+              <button 
+                onClick={handleExportPDF}
+                className="bg-lime-400 hover:bg-lime-500 text-black font-bold py-2.5 px-6 rounded text-sm transition-colors flex items-center gap-2"
+              >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                 </svg>
