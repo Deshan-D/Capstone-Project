@@ -1,7 +1,10 @@
+"use client";
 import Image from 'next/image';
 import Link from 'next/link';
+import { useState } from 'react';
 
 export default function LiveCamera() {
+  const [streamError, setStreamError] = useState(false);
  
   const alerts = [
     { id: 1, type: 'RED LIGHT JUMPING', time: '2 mins ago', plate: 'ABC-1234', desc: 'White Toyota Corolla', priority: 'HIGH PRIORITY', titleColor: 'text-red-400' },
@@ -72,15 +75,19 @@ export default function LiveCamera() {
             <div className="absolute top-4 right-4 border border-lime-500/50 text-lime-500 bg-black/60 backdrop-blur text-[10px] font-bold px-2 py-1 rounded z-10">
               ID: CAM-001-P
             </div>
-            {/* AI Bounding Box Simulation */}
-            <div className="absolute top-1/4 left-1/4 w-1/3 h-1/2 border-2 border-lime-400 bg-lime-400/10 rounded pointer-events-none transition-all duration-1000">
-              <div className="absolute -top-5 left-[-2px] bg-lime-400 text-black text-[9px] font-bold px-1.5 py-0.5 rounded-t">
-                CAR 98%
+            {/* Live Camera Feed */}
+            {!streamError ? (
+              <img 
+                src="http://localhost:8000/api/stream/0" 
+                alt="Live Feed CAM-001-P" 
+                className="w-full h-full object-cover rounded-xl"
+                onError={() => setStreamError(true)}
+              />
+            ) : (
+              <div className="absolute inset-0 flex items-center justify-center text-red-500 font-bold bg-neutral-900/80 rounded-xl">
+                Camera Feed Offline
               </div>
-            </div>
-            <div className="absolute inset-0 flex items-center justify-center text-neutral-600 opacity-20 group-hover:opacity-40 transition-opacity">
-               <svg className="w-24 h-24" fill="currentColor" viewBox="0 0 24 24"><path d="M15 12c0 1.654-1.346 3-3 3s-3-1.346-3-3 1.346-3 3-3 3 1.346 3 3zm9-.449s-4.252 8.449-11.985 8.449c-7.18 0-12.015-8.449-12.015-8.449s4.446-7.551 12.015-7.551c7.694 0 11.985 7.551 11.985 7.551zm-7 .449c0-2.757-2.243-5-5-5s-5 2.243-5 5 2.243 5 5 5 5-2.243 5-5z"/></svg>
-            </div>
+            )}
           </div>
 
           {/* Camera 2 */}
