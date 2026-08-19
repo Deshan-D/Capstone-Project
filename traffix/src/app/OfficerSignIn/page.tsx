@@ -1,7 +1,56 @@
+"use client";
 import Image from 'next/image';
 import Link from 'next/link';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function OfficerSignIn() {
+  const router = useRouter();
+
+  const [formData, setFormData] = useState({
+    nameWithInitials: '',
+    idNumber: '',
+    mobileNumber: ''
+  });
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError('');
+
+    try {
+      const response = await fetch('http://localhost:8000/api/officer/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nameWithInitials: formData.nameWithInitials,
+          idNumber: formData.idNumber,
+          mobileNumber: formData.mobileNumber
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        localStorage.setItem('officerToken', data.access_token);
+        router.push('/LiveCamera');
+      } else {
+        setError(data.detail || "Invalid credentials");
+      }
+    } catch (err) {
+      setError("Server connection failed");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+
   return (
     <div className="min-h-screen bg-[#111111] text-neutral-200 font-sans flex flex-col items-center justify-center p-6 relative">
       <div className="w-full max-w-md bg-[#161616] border border-neutral-800 rounded-xl pt-8 pb-6 px-6 shadow-2xl">
@@ -10,7 +59,6 @@ export default function OfficerSignIn() {
           <h2 className="text-xs font-bold tracking-widest text-neutral-400 uppercase">Field Portal Access</h2>
         </div>
 
-        
         <div className="flex w-full mb-8">
           <Link href="/OfficerSignIn" className="flex-1 text-center pb-3 border-b-2 border-lime-400 text-lime-400 text-xs font-bold tracking-wider">
             SIGN IN
@@ -20,36 +68,36 @@ export default function OfficerSignIn() {
           </Link>
         </div>
 
-       
-        <div className="space-y-4">
+        {error && <div className="mb-4 text-center text-xs font-bold text-red-500">{error}</div>}
+
+        {/* Form Fields */}
+        <form onSubmit={handleLogin} className="space-y-4">
           <div>
             <label className="block text-xs text-white mb-1.5 font-medium">Name with Initials</label>
             <div className="flex items-center bg-black border border-neutral-800 rounded px-3 py-2.5">
               <span className="text-lime-500 mr-3">👤</span>
-              <input type="text" placeholder="e.g. A.B.C. Perera" className="bg-transparent w-full text-sm text-white focus:outline-none placeholder-neutral-600" />
+              <input type="text" name="nameWithInitials" value={formData.nameWithInitials} onChange={handleChange} required placeholder="e.g. A.B.C. Perera" className="bg-transparent w-full text-sm text-white focus:outline-none placeholder-neutral-600" />
             </div>
           </div>
-
           <div>
             <label className="block text-xs text-white mb-1.5 font-medium">ID Number</label>
             <div className="flex items-center bg-black border border-neutral-800 rounded px-3 py-2.5">
               <span className="text-lime-500 mr-3">🆔</span>
-              <input type="text" placeholder="xxxxxxxxxxxx" className="bg-transparent w-full text-sm text-white focus:outline-none placeholder-neutral-600" />
+              <input type="text" name="idNumber" value={formData.idNumber} onChange={handleChange} required placeholder="xxxxxxxxxxxx" className="bg-transparent w-full text-sm text-white focus:outline-none placeholder-neutral-600" />
             </div>
           </div>
-
           <div>
             <label className="block text-xs text-white mb-1.5 font-medium">Mobile Number</label>
             <div className="flex items-center bg-black border border-neutral-800 rounded px-3 py-2.5">
               <span className="text-lime-500 mr-3">📱</span>
-              <input type="text" placeholder="07XXXXXXXX" className="bg-transparent w-full text-sm text-white focus:outline-none placeholder-neutral-600" />
+              <input type="text" name="mobileNumber" value={formData.mobileNumber} onChange={handleChange} required placeholder="07XXXXXXXX" className="bg-transparent w-full text-sm text-white focus:outline-none placeholder-neutral-600" />
             </div>
           </div>
-
-          <button className="w-full bg-lime-400 hover:bg-lime-500 text-black font-bold py-3 mt-6 rounded text-sm transition-colors flex items-center justify-center gap-2 tracking-wide">
-            DUTY LOGIN ➔
+          
+          <button type="submit" disabled={isLoading} className="w-full bg-lime-400 hover:bg-lime-500 disabled:opacity-50 text-black font-bold py-3 mt-6 rounded text-sm transition-colors flex items-center justify-center gap-2 tracking-wide">
+            {isLoading ? "AUTHENTICATING..." : "DUTY LOGIN ➔"}
           </button>
-        </div>
+        </form>
 
         <div className="text-center mt-6">
           <p className="text-[10px] text-neutral-500">Forgot Password or Reset Index? Contact IT Support</p>
