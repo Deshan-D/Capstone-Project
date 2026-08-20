@@ -9,3 +9,13 @@ How to Run-
    npm install
    npm run dev
    Then open http://localhost:3000 in your browser.
+   
+We use these technologies for our TraffiX system.
+Next.js
+React
+Tailwind CSS
+Python
+YOLOv8
+OpenCV
+ByteTrack
+MongoDB
